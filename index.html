@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提示工程指南</title>
+    <style>
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3, h4 {
+            color: #1a73e8;
+            margin-top: 1.5em;
+        }
+        h1 {
+            font-size: 2.5em;
+            border-bottom: 2px solid #1a73e8;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 1.8em;
+            border-bottom: 1px solid #dadce0;
+            padding-bottom: 8px;
+        }
+        h3 {
+            font-size: 1.4em;
+        }
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .technique-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid #1a73e8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .example {
+            background-color: #e8f0fe;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .example h4 {
+            margin-top: 0;
+            color: #1a73e8;
+        }
+        .tip {
+            background-color: #e6f4ea;
+            border-left: 4px solid #34a853;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .warning {
+            background-color: #fef7e0;
+            border-left: 4px solid #fbbc04;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #dadce0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f3f4;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .toc {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .toc li {
+            margin: 5px 0;
+        }
+        .prompt {
+            background-color: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .output {
+            background-color: #f0f4f9;
+            border: 1px solid #dadce0;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #dadce0;
+            text-align: center;
+            font-size: 0.9em;
+            color: #5f6368;
+        }
+    </style>
+</head>
+<body>
+    <h1>提示工程指南</h1>
+    <p>一份面向大型语言模型(LLM)的综合提示工程指南。基于Google 2025年2月发布的Gemini提示工程白皮书。</p>
+    
+    <div class="toc">
+        <h2>目录</h2>
+        <ul>
+            <li><a href="#introduction">引言</a></li>
+            <li><a href="#llm-output-configuration">LLM输出配置</a>
+                <ul>
+                    <li><a href="#output-length">输出长度</a></li>
+                    <li><a href="#sampling-controls">采样控制</a></li>
+                </ul>
+            </li>
+            <li><a href="#prompting-techniques">提示技术</a>
+                <ul>
+                    <li><a href="#zero-shot">通用提示 / 零样本</a></li>
+                    <li><a href="#one-few-shot">单样本 & 少样本</a></li>
+                    <li><a href="#system-contextual-role">系统、上下文和角色提示</a></li>
+                    <li><a href="#step-back">后退提示法</a></li>
+                    <li><a href="#chain-of-thought">思维链 (CoT)</a></li>
+                    <li><a href="#self-consistency">自我一致性</a></li>
+                    <li><a href="#tree-of-thoughts">思维树 (ToT)</a></li>
+                    <li><a href="#react">ReAct (推理 & 行动)</a></li>
+                    <li><a href="#automatic-prompting">自动提示工程</a></li>
+                </ul>
+            </li>
+            <li><a href="#code-prompting">代码提示</a>
+                <ul>
+                    <li><a href="#prompts-writing-code">编写代码的提示</a></li>
+                    <li><a href="#prompts-explaining-code">解释代码的提示</a></li>
+                    <li><a href="#prompts-translating-code">翻译代码的提示</a></li>
+                    <li><a href="#prompts-debugging-code">调试和审查代码的提示</a></li>
+                </ul>
+            </li>
+            <li><a href="#best-practices">最佳实践</a></li>
+            <li><a href="#documentation">记录提示</a></li>
+        </ul>
+    </div>
+
+    <h2 id="introduction">引言</h2>
+    <p>在考虑大型语言模型的输入和输出时，文本提示（有时还有图像提示等其他形式）是模型用来预测特定输出的输入。你不需要成为数据科学家或机器学习工程师 - 每个人都可以编写提示。但是，设计最有效的提示可能很复杂。</p>
+    
+    <p>影响提示效果的因素很多：</p>
+    <ul>
+        <li>使用的模型</li>
+        <li>模型的训练数据</li>
+        <li>模型配置</li>
+        <li>词语选择、风格和语调</li>
+        <li>结构和上下文</li>
+    </ul>
+    
+    <p>因此，提示工程是一个迭代过程。不充分的提示可能导致模糊、不准确的回应，并可能阻碍模型提供有意义的输出。</p>
+
+    <h2 id="llm-output-configuration">LLM输出配置</h2>
+    <p>选择模型后，你需要配置控制LLM输出的各种设置。有效的提示工程需要为任务优化这些配置。</p>
+
+    <h3 id="output-length">输出长度</h3>
+    <p>一个重要的配置设置是在响应中生成的标记数量。生成更多标记需要LLM进行更多计算，导致更高的能源消耗，可能更慢的响应时间和更高的成本。</p>
+    
+    <p class="warning">减少输出长度并不会使LLM的输出风格或文本更简洁 - 它只会使LLM在达到限制后停止预测更多标记。如果你需要更短的输出长度，你需要相应地设计提示。</p>
+
+    <h3 id="sampling-controls">采样控制</h3>
+    <p>LLM预测下一个可能的标记的概率。温度、top-K和top-P是最常见的配置设置，用于确定如何处理预测的标记概率以选择单个输出标记。</p>
+
+    <h4>温度（Temperature）</h4>
+    <p>温度控制标记选择的随机程度：</p>
+    <ul>
+        <li>较低温度（0-0.3）：适用于期望更确定性响应的提示</li>
+        <li>中等温度（0.3-0.7）：平衡创造性和连贯性</li>
+        <li>较高温度（0.7-1.0）：导致更多样化或意外的结果</li>
+    </ul>
+    
+    <p>温度为0（贪婪解码）是确定性的：始终选择概率最高的标记。</p>
+
+    <h4>Top-K和Top-P</h4>
+    <p>这些采样设置用于将预测的下一个标记限制为来自具有最高预测概率的标记：</p>
+    
+    <ul>
+        <li><strong>Top-K采样：</strong> 从模型预测分布中选择K个最可能的标记。top-K值越高，模型输出的创造性和多样性越高。</li>
+        <li><strong>Top-P采样（核采样）：</strong> 选择累积概率不超过特定值(P)的顶部标记。P值范围从0（贪婪解码）到1（LLM词汇表中的所有标记）。</li>
+    </ul>
+    
+    <div class="tip">
+        <p><strong>起始点：</strong></p>
+        <ul>
+            <li>对于连贯且略有创意的结果：温度为0.2，top-P为0.95，top-K为30</li>
+            <li>对于特别有创意的结果：温度为0.9，top-P为0.99，top-K为40</li>
+            <li>对于较少创意的结果：温度为0.1，top-P为0.9，top-K为20</li>
+            <li>对于有单一正确答案的任务（如数学问题）：温度为0</li>
+        </ul>
+    </div>
+    
+    <div class="warning">
+        <p><strong>注意事项：</strong> "重复循环错误" - 当模型陷入循环，重复生成相同的词、短语或句子结构时。这通常是由于不适当的温度和top-K/top-P设置造成的。</p>
+    </div>
+
+    <h2 id="prompting-techniques">提示技术</h2>
+    <p>提示越清晰，模型就越能预测下一个可能的文本。让我们探讨一些最重要的提示技术。</p>
+
+    <h3 id="zero-shot">通用提示 / 零样本</h3>
+    <div class="technique-card">
+        <p>零样本提示是最简单的提示类型。它只提供任务的描述和一些让LLM开始的文本。不提供示例。</p>
+    </div>
+    
+    <div class="example">
+        <h4>零样本示例：电影评论分类</h4>
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            将电影评论分类为积极（POSITIVE）、中性（NEUTRAL）或消极（NEGATIVE）。<br>
+            评论："Her"是一部令人不安的研究，揭示了如果允许人工智能不受控制地继续发展，人类将走向何方。我希望有更多像这样的杰作。<br>
+            情感：
+        </div>
+        <div class="output">
+            <strong>输出：</strong><br>
+            POSITIVE
+        </div>
+    </div>
+
+    <h3 id="one-few-shot">单样本 & 少样本</h3>
+    <div class="technique-card">
+        <p>为AI模型创建提示时，提供示例非常有帮助。这些示例向模型展示你要求的内容，特别适用于当你希望引导模型生成特定输出结构或模式时。</p>
+        <ul>
+            <li><strong>单样本提示：</strong> 提供一个示例，让模型模仿。</li>
+            <li><strong>少样本提示：</strong> 提供多个示例，增加模型遵循模式的可能性。</li>
+        </ul>
+    </div>
+    
+    <div class="example">
+        <h4>少样本示例：解析披萨订单为JSON</h4>
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            将客户的披萨订单解析为有效的JSON：<br><br>
+            
+            示例：<br>
+            我想要一个小号披萨，配奶酪、番茄酱和意大利香肠。<br>
+            JSON响应：<br>
+            ```<br>
+            {<br>
+              "size": "small",<br>
+              "type": "normal",<br>
+              "ingredients": [["cheese", "tomato sauce", "peperoni"]]<br>
+            }<br>
+            ```<br><br>
+            
+            示例：<br>
+            我能点一个大号披萨，配番茄酱、罗勒和莫扎里拉奶酪吗<br>
+            {<br>
+              "size": "large",<br>
+              "type": "normal",<br>
+              "ingredients": [["tomato sauce", "bazel", "mozzarella"]]<br>
+            }<br><br>
+            
+            现在，我想要一个大号披萨，一半是奶酪和莫扎里拉奶酪，另一半是番茄酱、火腿和菠萝。<br>
+            JSON响应：
+        </div>
+        <div class="output">
+            <strong>输出：</strong><br>
+            ```<br>
+            {<br>
+              "size": "large",<br>
+              "type": "half-half",<br>
+              "ingredients": [["cheese", "mozzarella"], ["tomato sauce", "ham", "pineapple"]]<br>
+            }<br>
+            ```
+        </div>
+    </div>
+    
+    <div class="tip">
+        <p>一般来说，少样本提示至少使用三到五个示例。但对于复杂任务可能需要更多示例，或者由于输入长度限制而减少示例。</p>
+    </div>
+
+    <h3 id="system-contextual-role">系统、上下文和角色提示</h3>
+    <div class="technique-card">
+        <p>系统、上下文和角色提示都是用来引导LLM生成文本的技术，但它们关注不同方面：</p>
+        <ul>
+            <li><strong>系统提示：</strong> 设置语言模型的整体上下文和目的。它定义了模型应该做什么的"大局观"。</li>
+            <li><strong>上下文提示：</strong> 提供与当前对话或任务相关的具体细节或背景信息。</li>
+            <li><strong>角色提示：</strong> 为语言模型分配特定的角色或身份。</li>
+        </ul>
+    </div>
+
+    <h4>系统提示示例</h4>
+    <div class="example">
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            将电影评论分类为积极、中性或消极。只以大写形式返回标签。<br>
+            评论："Her"是一部令人不安的研究，揭示了如果允许人工智能不受控制地继续发展，人类将走向何方。它太令人不安了，我无法观看。<br>
+            情感：
+        </div>
+        <div class="output">
+            <strong>输出：</strong><br>
+            NEGATIVE
+        </div>
+    </div>
+
+    <h4>角色提示示例</h4>
+    <div class="example">
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            我希望你扮演旅游指南的角色。我会告诉你我的位置，你将以幽默的方式为我推荐3个可以参观的地方。<br>
+            我的位置："我在曼哈顿。"<br>
+            旅游建议：
+        </div>
+        <div class="output">
+            <strong>输出：</strong><br>
+            1. 看看帝国心态：登上帝国大厦令人眩晕的高度，沐浴在曼哈顿天际线的荣光中。准备好像金刚一样站在大苹果城的顶端，只是没有巨型猩猩大小的香蕉。<br><br>
+            
+            2. 在MoMA变得艺术范：在现代艺术博物馆(MoMA)释放你内心的艺术鉴赏家。凝视令人惊叹的杰作，这会让你的脑袋困惑，并质疑你的火柴人画作是否有任何艺术价值。<br><br>
+            
+            3. 在第五大道购物到腿软：在标志性的第五大道享受一些购物疗法。当你在设计师精品店橱窗购物（或实际购物）时，准备好迎接价格冲击，这会让你的钱包哭泣。但嘿，你在曼哈顿，所以你不妨拥抱这种华丽感！
+        </div>
+    </div>
+
+    <h4>上下文提示示例</h4>
+    <div class="example">
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            上下文：你正在为一个关于20世纪80年代复古街机电子游戏的博客写作。<br>
+            建议3个写文章的主题，并附带这些文章应包含的内容的简短描述。
+        </div>
+    </div>
+
+    <h3 id="step-back">后退提示法</h3>
+    <div class="technique-card">
+        <p>后退提示法是一种提高性能的技术，通过首先让LLM考虑与特定任务相关的一般性问题，然后将该一般性问题的答案作为后续提示的输入来解决特定任务。</p>
+        <p>这种"后退"允许LLM在尝试解决特定问题之前激活相关的背景知识和推理过程。</p>
+    </div>
+    
+    <div class="example">
+        <h4>后退提示法示例：电子游戏故事情节</h4>
+        <p><strong>第一步：</strong> 提出一个一般性问题</p>
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            基于流行的第一人称射击动作游戏，哪5个虚构的关键场景可以为第一人称射击电子游戏中的关卡故事线提供挑战性和吸引力？
+        </div>
+        <p><strong>第二步：</strong> 使用响应作为特定提示的上下文</p>
+        <div class="prompt">
+            <strong>含后退上下文的提示：</strong><br>
+            上下文：第一人称射击游戏的5个吸引人的主题：<br>
+            1. **废弃军事基地**：一个庞大的后末日军事综合体，爬满了变异士兵和失控机器人，非常适合挑战性的枪战。<br>
+            2. **赛博朋克城市**：一个霓虹灯闪烁的未来城市环境，有高耸的摩天大楼和密集的小巷，拥有增强型敌人和黑客机制。<br>
+            3. **外星飞船**：一艘搁浅在地球上的巨大外星飞船，有诡异的走廊、零重力区域和外星生物。<br>
+            4. **僵尸城镇**：一个被成群的僵尸占领的荒凉小镇，特点是激烈的近战和解谜以找到安全通道。<br>
+            5. **水下研究设施**：一个被水淹没的深海实验室，充满了变异的水生生物，需要潜行和水下探索技能才能生存。<br><br>
+            
+            选择其中一个主题，为第一人称射击电子游戏的新关卡写一段具有挑战性和吸引力的故事情节。
+        </div>
+    </div>
+
+    <h3 id="chain-of-thought">思维链 (CoT)</h3>
+    <div class="technique-card">
+        <p>思维链(Chain of Thought, CoT)提示是一种通过生成中间推理步骤来提高LLM推理能力的技术。这有助于LLM生成更准确的答案。</p>
+        <p>你可以将其与少样本提示结合，以在需要推理的更复杂任务上获得更好的结果。</p>
+    </div>
+    
+    <div class="example">
+        <h4>思维链示例：数学问题</h4>
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            当我3岁时，我的伴侣是我年龄的3倍。现在，我20岁了。我的伴侣多大了？让我们一步一步思考。
+        </div>
+        <div class="output">
+            <strong>输出：</strong><br>
+            1. 假设我当前的年龄是"x"岁。<br>
+            2. 当我3岁时，我的年龄是3岁。<br>
+            3. 我伴侣当时的年龄是我年龄的3倍，也就是说，我伴侣的年龄是3 * 3 = 9岁。<br>
+            4. 现在，我20岁了，这意味着自我3岁以来，我的年龄增加了20 - 3 = 17岁。<br>
+            5. 既然我伴侣在我3岁时是9岁，而我的年龄增加了17岁，我伴侣的年龄也必须增加了17岁。<br>
+            6. 因此，我伴侣现在的年龄是9 + 17 = 26岁。<br><br>
+            
+            所以，我的伴侣26岁。
+        </div>
+    </div>
+    
+    <div class="tip">
+        <p><strong>CoT优势：</strong></p>
+        <ul>
+            <li>低成本且非常有效</li>
+            <li>适用于现成的LLMs（无需微调）</li>
+            <li>提供可解释性 - 你可以看到推理步骤</li>
+            <li>在不同LLM版本之间切换时提高鲁棒性</li>
+        </ul>
+        <p><strong>对于CoT提示，将温度设置为0</strong>，因为可能只有一个正确答案。</p>
+    </div>
+
+    <h3 id="self-consistency">自我一致性</h3>
+    <div class="technique-card">
+        <p>自我一致性结合采样和多数投票来生成多样化的推理路径并选择最一致的答案。它提高了LLMs生成的响应的准确性和连贯性。</p>
+        <p>步骤：</p>
+        <ol>
+            <li>通过使用高温度设置多次提供相同的提示来生成不同的推理路径</li>
+            <li>从每个生成的响应中提取答案</li>
+            <li>选择最常见的答案</li>
+        </ol>
+    </div>
+    
+    <div class="example">
+        <h4>自我一致性示例：电子邮件分类</h4>
+        <p>在这里，相同的电子邮件分类提示会以高温度多次发送给LLM，以生成不同的推理路径。最终分类将是最常见的结果。</p>
+    </div>
+
+    <h3 id="tree-of-thoughts">思维树 (ToT)</h3>
+    <div class="technique-card">
+        <p>思维树(Tree of Thoughts, ToT)通过允许LLM同时探索多个不同的推理路径，而不仅仅是遵循单一的思维链，从而概括了CoT提示的概念。</p>
+        <p>这种方法使ToT特别适合需要探索的复杂任务。它通过维护思维树来工作，其中每个思维代表一个作为解决问题的中间步骤的连贯语言序列。</p>
+    </div>
+
+    <h3 id="react">ReAct (推理 & 行动)</h3>
+    <div class="technique-card">
+        <p>推理和行动(ReAct)提示是一种范式，使LLM能够使用自然语言推理结合外部工具（搜索、代码解释器等）解决复杂任务。</p>
+        <p>ReAct模仿人类在现实世界中的操作方式，我们进行口头推理并采取行动获取信息。它通过将推理和行动结合到思考-行动循环中工作：</p>
+        <ol>
+            <li>LLM首先推理问题并生成行动计划</li>
+            <li>然后执行计划中的行动并观察结果</li>
+            <li>LLM使用观察结果更新其推理并生成新的行动计划</li>
+            <li>此过程继续直到LLM达到解决方案</li>
+        </ol>
+    </div>
+
+    <h3 id="automatic-prompting">自动提示工程</h3>
+    <div class="technique-card">
+        <p>自动提示工程(APE)是一种自动创建提示的方法。这对于生成提示变体或优化特定任务的提示特别有用。</p>
+        <p>基本过程：</p>
+        <ol>
+            <li>编写一个将生成输出变体的提示</li>
+            <li>基于选定的度量标准对所有指令候选进行评分</li>
+            <li>选择评分最高的指令候选</li>
+        </ol>
+    </div>
+    
+    <div class="example">
+        <h4>APE示例：生成提示变体</h4>
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            我们有一个乐队商品T恤网店，为了训练聊天机器人，我们需要各种订购方式："一件Metallica乐队的S码T恤"。生成10个变体，保持相同的语义但保持相同的含义。
+        </div>
+        <div class="output">
+            <strong>输出：</strong><br>
+            1. 我想购买一件Metallica乐队的小号T恤。<br>
+            2. 我能订购一件小号的Metallica乐队T恤吗？<br>
+            3. 我想买一件Metallica乐队的小号T恤。<br>
+            4. 一件Metallica乐队衫，小号，麻烦了。<br>
+            5. 我需要一件Metallica乐队的小号T恤。<br>
+            6. 我想为自己下单一件小号的Metallica乐队T恤。<br>
+            7. 小号Metallica乐队T恤，一件谢谢。<br>
+            8. 我正在寻找一件小号的Metallica乐队T恤。<br>
+            9. 你能给我一件小号的Metallica乐队T恤吗？<br>
+            10. 一件Metallica乐队小号T恤，谢谢。
+        </div>
+    </div>
+
+    <h2 id="code-prompting">代码提示</h2>
+    <p>LLM也可以帮助编写、解释、翻译和调试代码。以下是一些有效的代码提示技术。</p>
+
+    <h3 id="prompts-writing-code">编写代码的提示</h3>
+    <div class="example">
+        <h4>示例：编写Bash脚本</h4>
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            编写一个Bash代码片段，该片段询问文件夹名称。然后它获取该文件夹的内容并通过在文件名前添加draft前缀来重命名其中的所有文件。
+        </div>
+        <div class="output">
+            <strong>输出：</strong><br>
+            ```bash<br>
+            #!/bin/bash<br>
+            # 询问文件夹名称<br>
+            echo "请输入文件夹名称："<br>
+            read folder_name<br>
+            # 检查文件夹是否存在<br>
+            if [ ! -d "$folder_name" ]; then<br>
+              echo "文件夹不存在。"<br>
+              exit 1<br>
+            fi<br>
+            # 获取文件夹中的文件列表<br>
+            files=( "$folder_name"/* )<br>
+            # 重命名每个文件，在文件名前添加"draft"<br>
+            for file in "${files[@]}"; do<br>
+              new_file_name="draft_$(basename "$file")"<br>
+              mv "$file" "$new_file_name"<br>
+            done<br>
+            echo "文件重命名成功。"<br>
+            ```
+        </div>
+    </div>
+
+    <h3 id="prompts-explaining-code">解释代码的提示</h3>
+    <div class="example">
+        <h4>示例：解释Bash代码</h4>
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            向我解释以下Bash代码：<br>
+            ```<br>
+            #!/bin/bash<br>
+            echo "请输入文件夹名称："<br>
+            read folder_name<br>
+            if [ ! -d "$folder_name" ]; then<br>
+              echo "文件夹不存在。"<br>
+              exit 1<br>
+            fi<br>
+            files=( "$folder_name"/* )<br>
+            for file in "${files[@]}"; do<br>
+              new_file_name="draft_$(basename "$file")"<br>
+              mv "$file" "$new_file_name"<br>
+            done<br>
+            echo "文件重命名成功。"<br>
+            ```
+        </div>
+        <div class="output">
+            <strong>输出：</strong><br>
+            这个Bash脚本执行以下任务：
+            <ol>
+                <li><strong>用户输入</strong>：使用`echo`和`read`命令提示用户输入文件夹名称。输入的文件夹名称存储在`folder_name`变量中。</li>
+                <li><strong>文件夹存在性检查</strong>：使用`[ ! -d "$folder_name" ]`条件检查指定名称的文件夹是否存在。如果文件夹不存在，它会显示错误消息（"文件夹不存在。"）并以退出代码1退出脚本。</li>
+                <li><strong>文件列表</strong>：使用`files=( "$folder_name"/* )`命令列出指定文件夹内的所有文件。这会创建一个名为`files`的数组，其中包含文件夹中所有文件的路径。</li>
+                <li><strong>文件重命名</strong>：使用`for`循环遍历`files`数组中的每个文件。对于每个文件，它使用`new_file_name="draft_$(basename "$file")"`命令生成一个新文件名。这个新文件名是通过在原始文件名前添加字符串"draft_"创建的。然后它使用`mv "$file" "$new_file_name"`命令重命名文件，将文件移动到新文件名。</li>
+                <li><strong>成功消息</strong>：重命名所有文件后，它显示一条成功消息（"文件重命名成功。"），表明重命名操作成功。</li>
+            </ol>
+        </div>
+    </div>
+
+    <h3 id="prompts-translating-code">翻译代码的提示</h3>
+    <div class="example">
+        <h4>示例：将Bash翻译为Python</h4>
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            将以下Bash代码翻译为Python代码片段。<br>
+            ```bash<br>
+            #!/bin/bash<br>
+            echo "请输入文件夹名称："<br>
+            read folder_name<br>
+            if [ ! -d "$folder_name" ]; then<br>
+              echo "文件夹不存在。"<br>
+              exit 1<br>
+            fi<br>
+            files=( "$folder_name"/* )<br>
+            for file in "${files[@]}"; do<br>
+              new_file_name="draft_$(basename "$file")"<br>
+              mv "$file" "$new_file_name"<br>
+            done<br>
+            echo "文件重命名成功。"<br>
+            ```
+        </div>
+        <div class="output">
+            <strong>输出：</strong><br>
+            ```python<br>
+            import os<br>
+            import shutil<br>
+            # 从用户获取文件夹名称<br>
+            folder_name = input("请输入文件夹名称：")<br>
+            # 检查文件夹是否存在<br>
+            if not os.path.isdir(folder_name):<br>
+              print("文件夹不存在。")<br>
+              exit(1)<br>
+            # 获取文件夹中所有文件的列表<br>
+            files = os.listdir(folder_name)<br>
+            # 遍历文件<br>
+            for file in files:<br>
+              # 创建带有前缀"draft_"的新文件名<br>
+              new_file_name = f"draft_{file}"<br>
+              # 移动文件到新名称<br>
+              shutil.move(os.path.join(folder_name, file),<br>
+                         os.path.join(folder_name, new_file_name))<br>
+            # 打印成功消息<br>
+            print("文件重命名成功。")<br>
+            ```
+        </div>
+    </div>
+
+    <h3 id="prompts-debugging-code">调试和审查代码的提示</h3>
+    <div class="example">
+        <h4>示例：调试Python代码</h4>
+        <div class="prompt">
+            <strong>提示：</strong><br>
+            以下Python代码出现错误：<br>
+            Traceback (most recent call last):<br>
+            File "/Users/leeboonstra/Documents/test_folder/rename_files.py", line 7, in &lt;module&gt;<br>
+            text = toUpperCase(prefix)<br>
+            NameError: name 'toUpperCase' is not defined<br><br>
+            
+            调试问题所在并解释如何改进代码。<br>
+            ```python<br>
+            import os<br>
+            import shutil<br>
+            # 从用户获取文件夹名称<br>
+            folder_name = input("请输入文件夹名称：")<br>
+            prefix = input("请输入要添加到文件名前的字符串：")<br>
+            text = toUpperCase(prefix)<br>
+            # 检查文件夹是否存在<br>
+            if not os.path.isdir(folder_name):<br>
+              print("文件夹不存在。")<br>
+              exit(1)<br>
+            # 获取文件夹中所有文件的列表<br>
+            files = os.listdir(folder_name)<br>
+            # 遍历文件<br>
+            for file in files:<br>
+              # 创建带有前缀的新文件名<br>
+              new_filename = f"{text}_{file}"<br>
+              # 移动文件到新名称<br>
+              shutil.move(os.path.join(folder_name, file),<br>
+                         os.path.joi(folder_name, new_file_name))<br>
+            # 打印成功消息<br>
+            print("文件重命名成功。")<br>
+            ```
+        </div>
+        <div class="output">
+            <strong>输出：</strong><br>
+            代码调用了`toUpperCase`函数将`prefix`转换为大写，但该函数在Python中不存在。要修复这个问题，你可以使用字符串类的`upper()`方法将给定字符串转换为大写。修改后的代码如下：
+
+            ```python
+            import os
+            import shutil
+            # 从用户获取文件夹名称
+            folder_name = input("请输入文件夹名称：")
+            prefix = input("请输入要添加到文件名前的字符串：")
+            text = prefix.upper()
+            # 检查文件夹是否存在
+            if not os.path.isdir(folder_name):
+              print("文件夹不存在。")
+              exit(1)
+            # 获取文件夹中所有文件的列表
+            files = os.listdir(folder_name)
+            # 遍历文件
+            for file in files:
+              # 创建带有前缀的新文件名
+              new_filename = f"{text}_{file}"
+              # 移动文件到新名称
+              shutil.move(os.path.join(folder_name, file),
+                         os.path.join(folder_name, new_filename))
+            # 打印成功消息
+            print("文件重命名成功。")
+            ```
+
+            此外，还有其他几处需要改进：
+            1. 第二个`os.path.join`中的方法名写成了`joi`而不是`join`
+            2. 在第二个`os.path.join`中使用了变量`new_file_name`，但定义的变量名是`new_filename`（注意大小写）
+            3. 代码没有处理在重命名过程中可能发生的错误
+            
+            这些问题都已在上面的代码中修复。
+        </div>
+    </div>
+
+    <h2 id="best-practices">最佳实践</h2>
+    <p>寻找正确的提示需要不断尝试。以下是一些提示工程的最佳实践：</p>
+
+    <div class="tip">
+        <h3>提供示例</h3>
+        <p>在提示中提供（单样本/少样本）示例是最重要的最佳实践。这非常有效，因为它可以作为强大的教学工具。这些示例展示了期望的输出或类似的回应，使模型能够从中学习并相应地调整其生成。这就像给模型一个参考点或目标，提高其回应的准确性、风格和语调，以更好地符合您的期望。</p>
+    </div>
+
+    <div class="tip">
+        <h3>简单设计</h3>
+        <p>提示应该简洁、清晰，对您和模型都容易理解。作为经验法则，如果对您来说已经令人困惑，那么对模型来说也可能同样令人困惑。尽量不要使用复杂的语言，不要提供不必要的信息。</p>
+        
+        <p><strong>使用描述动作的动词。例如：</strong></p>
+        <p>扮演、分析、分类、对比、比较、创建、描述、定义、评估、提取、查找、生成、识别、列出、测量、组织、解析、选择、预测、提供、排名、推荐、返回、检索、重写、选择、显示、排序、总结、翻译、撰写。</p>
+    </div>
+
+    <div class="tip">
+        <h3>明确输出</h3>
+        <p>明确指定所需的输出。简洁的指令可能不足以引导LLM，或者可能过于笼统。在提示中提供具体细节（通过系统或上下文提示）可以帮助模型集中在相关内容上，提高整体准确性。</p>
+    </div>
+
+    <div class="tip">
+        <h3>使用指令而非约束</h3>
+        <p>在提示中，指令和约束都用于引导LLM的输出。</p>
+        <ul>
+            <li><strong>指令</strong>提供关于响应的期望格式、风格或内容的明确指示。它指导模型应该做什么或产生什么。</li>
+            <li><strong>约束</strong>是对响应的一系列限制或边界。它限制了模型不应该做什么或避免什么。</li>
+        </ul>
+        <p>越来越多的研究表明，在提示中专注于积极指令比严重依赖约束更有效。这种方法符合人类更喜欢积极指令而非不做事项清单的方式。</p>
+    </div>
+
+    <div class="tip">
+        <h3>控制最大标记长度</h3>
+        <p>要控制生成的LLM响应的长度，可以在配置中设置最大标记限制，或在提示中明确要求特定长度。例如："用推特长度的消息解释量子物理学。"</p>
+    </div>
+
+    <div class="tip">
+        <h3>在提示中使用变量</h3>
+        <p>在提示中使用变量，可以针对不同的输入进行更改。例如，一个提供城市事实的提示。不要在提示中硬编码城市名称，而是使用变量。当在自己的应用程序中集成提示时，变量可以节省时间和精力。</p>
+    </div>
+
+    <div class="tip">
+        <h3>实验输入格式和写作风格</h3>
+        <p>不同的模型、模型配置、提示格式、词语选择和提交可能产生不同的结果。因此，实验提示属性如风格、词语选择和提示类型（零样本、少样本、系统提示）非常重要。</p>
+    </div>
+
+    <div class="tip">
+        <h3>对少样本分类任务混合类别</h3>
+        <p>一般来说，少样本示例的顺序应该不太重要。但是，在进行分类任务时，确保混合示例中的可能响应类别。通过混合可能的响应类别，可以确保模型学习识别每个类别的关键特征，而不是简单地记住示例的顺序。这将导致对未见数据的更稳健和可泛化的性能。</p>
+    </div>
+
+    <div class="tip">
+        <h3>适应模型更新</h3>
+        <p>重要的是要了解模型架构变化、添加的数据和功能。尝试更新的模型版本，调整提示以更好地利用新的模型功能。像Vertex AI Studio这样的工具可以很好地存储、测试和记录提示的各种版本。</p>
+    </div>
+
+    <div class="tip">
+        <h3>实验输出格式</h3>
+        <p>除了提示输入格式外，考虑实验输出格式。对于非创造性任务，如提取、选择、解析、排序、排名或分类数据，尝试将输出返回为结构化格式，如JSON或XML。</p>
+    </div>
+
+    <h2 id="documentation">记录提示</h2>
+    <p>最后一个技巧之前已在本章中提到，但我们不能强调不够：完整记录你的提示尝试，这样你就能学习什么有效，什么无效。</p>
+    
+    <p>提示输出可能因模型、采样设置甚至同一模型的不同版本而异。此外，即使对同一模型的相同提示，输出句子格式和词语选择的微小差异也可能发生。</p>
+    
+    <p>我们建议创建一个以下表格为模板的文档。这种方法的优势在于，当你不可避免地需要重新访问你的提示工作时，你有一个完整的记录——无论是在未来（你会惊讶于短暂休息后能忘记多少），测试不同模型版本上的提示性能，还是帮助调试未来的错误。</p>
+
+    <table>
+        <tr>
+            <th>名称</th>
+            <td>[提示的名称和版本]</td>
+        </tr>
+        <tr>
+            <th>目标</th>
+            <td>[本次尝试目标的一句话解释]</td>
+        </tr>
+        <tr>
+            <th>模型</th>
+            <td>[使用的模型名称和版本]</td>
+        </tr>
+        <tr>
+            <th>温度</th>
+            <td>[0-1之间的值]</td>
+        </tr>
+        <tr>
+            <th>标记限制</th>
+            <td>[数字]</td>
+        </tr>
+        <tr>
+            <th>Top-K</th>
+            <td>[数字]</td>
+        </tr>
+        <tr>
+            <th>Top-P</th>
+            <td>[数字]</td>
+        </tr>
+        <tr>
+            <th>提示</th>
+            <td>[完整的提示]</td>
+        </tr>
+        <tr>
+            <th>输出</th>
+            <td>[输出或多个输出]</td>
+        </tr>
+    </table>
+    
+    <p>除了这些字段外，跟踪提示的版本（迭代）、一个用于捕获结果是否OK/NOT OK/SOMETIMES OK的字段，以及一个用于捕获反馈的字段也很有帮助。</p>
+    
+    <p>当你觉得提示接近完美时，将其带入项目代码库。在代码库中，将提示保存在与代码分开的文件中，以便于维护。最后，理想情况下，你的提示是操作化系统的一部分，作为提示工程师，你应该依靠自动化测试和评估程序来了解你的提示对任务的一般化程度。</p>
+    
+    <p>提示工程是一个迭代过程。制作和测试不同的提示，分析并记录结果。根据模型的性能优化你的提示。不断实验，直到达到所需的输出。当你更换模型或模型配置时，返回并继续使用之前使用的提示进行实验。</p>
+
+    <div class="footer">
+        <p>基于Google 2025年2月Gemini提示工程白皮书</p>
+    </div>
+</body>
+</html>
