@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提示工程指南</title>
+    <style>
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3, h4 {
+            color: #1a73e8;
+            margin-top: 1.5em;
+        }
+        h1 {
+            font-size: 2.5em;
+            border-bottom: 2px solid #1a73e8;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 1.8em;
+            border-bottom: 1px solid #dadce0;
+            padding-bottom: 8px;
+        }
+        h3 {
+            font-size: 1.4em;
+        }
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .technique-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid #1a73e8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .example {
+            background-color: #e8f0fe;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .example h4 {
+            margin-top: 0;
+            color: #1a73e8;
+        }
+        .tip {
+            background-color: #e6f4ea;
+            border-left: 4px solid #34a853;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .warning {
+            background-color: #fef7e0;
+            border-left: 4px solid #fbbc04;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #dadce0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f3f4;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .toc {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .toc li {
+            margin: 5px 0;
+        }
+        .prompt {
+            background-color: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .output {
+            background-color: #f0f4f9;
+            border: 1px solid #dadce0;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #dadce0;
+            text-align: center;
+            font-size: 0.9em;
+            color: #5f6368;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Nordic</div>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">理念</a></li>
+                    <li><a href="#">产品</a></li>
+                    <li><a href="#">关于</a></li>
+                    <li><a href="#">联系</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <section class="hero">
+            <div class="hero-text">
+                <h1>北欧风格</h1>
+                <div class="subtitle">简约、实用、自然</div>
+                <p>北欧风格源于斯堪的纳维亚地区，以<span class="highlight">简约</span>、<span class="highlight">功能性</span>和<span class="highlight">自然元素</span>为核心，创造出温馨、明亮且实用的空间。</p>
+                <p>这种设计风格注重自然光线、中性色调和有机材质，强调"少即是多"的理念，追求生活的舒适与品质。</p>
+                <a href="#" class="button">探索设计</a>
+            </div>
+            <div class="hero-image">
+                <div class="nordic-image">
+                    <!-- 产品图片位置 -->
+                    <div style="width: 300px; height: 300px; background-color: var(--primary-color); opacity: 0.2;"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="principles">
+            <h2 class="section-title">设计理念</h2>
+            <div class="principles-grid">
+                <div class="principle-card">
+                    <div class="principle-icon">☀️</div>
+                    <div class="principle-title">光线与空间</div>
+                    <div class="principle-desc">充分利用自然光线，创造开放、通透的空间感，抵抗北欧漫长冬季的黑暗。</div>
+                </div>
+                <div class="principle-card">
+                    <div class="principle-icon">🌿</div>
+                    <div class="principle-title">自然材质</div>
+                    <div class="principle-desc">大量使用木材、皮革、羊毛等天然材质，保持材料的本真质感，与自然建立联系。</div>
+                </div>
+                <div class="principle-card">
+                    <div class="principle-icon">⚙️</div>
+                    <div class="principle-title">功能至上</div>
+                    <div class="principle-desc">每一件设计作品都应兼具美观与实用，没有多余的装饰，形式服从功能。</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="products">
+            <h2 class="section-title">精选产品</h2>
+            <div class="product-grid">
+                <div class="product-card">
+                    <div class="product-image">
+                        <div style="width: 150px; height: 150px; background-color: var(--primary-color); opacity: 0.2;"></div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">北欧简约沙发</div>
+                        <div class="product-desc">简洁线条与舒适体验的完美结合，采用高品质亚麻面料与实木框架。</div>
+                        <div class="product-price">¥4,280</div>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <div style="width: 150px; height: 150px; background-color: var(--primary-color); opacity: 0.2;"></div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">橡木餐桌</div>
+                        <div class="product-desc">采用可持续采伐的北欧橡木，简约设计，展现木材自然纹理之美。</div>
+                        <div class="product-price">¥3,680</div>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <div style="width: 150px; height: 150px; background-color: var(--primary-color); opacity: 0.2;"></div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">羊毛地毯</div>
+                        <div class="product-desc">100%纯羊毛制作，简约几何图案，为空间增添温暖与质感。</div>
+                        <div class="product-price">¥1,280</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="testimonial">
+            <div class="testimonial-text">
+                "北欧设计不仅是一种美学风格，更是一种生活哲学——追求简约而不简单，注重品质而非数量，尊重自然而非征服。"
+            </div>
+            <div class="testimonial-author">— 斯堪的纳维亚设计协会</div>
+        </section>
+        
+        <footer>
+            <div class="footer-content">
+                <div class="footer-logo">Nordic</div>
+                <div class="copyright">© 2023 北欧风格设计</div>
+                <div class="style-number">34 / 北欧风格</div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
